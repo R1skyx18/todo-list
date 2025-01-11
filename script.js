@@ -149,7 +149,7 @@ function deleteAllTodos() {
 function confirmDeleteAll() {
     todos = [];
     closeDeleteAllModal();
-    showMessage("All done Tasks has been deleted.");
+    showMessage("All Tasks has been deleted.");
     saveTodos();
     renderTodos();
 }
