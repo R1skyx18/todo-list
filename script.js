@@ -148,8 +148,9 @@ function deleteAllTodos() {
 
 function confirmDeleteAll() {
     todos = [];
-    saveTodos();
     closeDeleteAllModal();
+    showMessage("All done Tasks has been deleted.");
+    saveTodos();
     renderTodos();
 }
 
@@ -161,7 +162,7 @@ function closeDeleteAllModal() {
 function confirmDeleteAllDone() {
     todos = todos.filter(todo => !todo.done);
     closeDeleteAllDoneModal();
-    showMessage("All done Tasks has been deleted.")
+    showMessage("All done Tasks has been deleted.");
     saveTodos();
     renderTodos();
 }
