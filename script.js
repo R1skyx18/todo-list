@@ -160,8 +160,9 @@ function closeDeleteAllModal() {
 
 function confirmDeleteAllDone() {
     todos = todos.filter(todo => !todo.done);
-    saveTodos();
     closeDeleteAllDoneModal();
+    showMessage("All done Tasks has been deleted.")
+    saveTodos();
     renderTodos();
 }
 
