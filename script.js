@@ -2,66 +2,36 @@ let todos = JSON.parse(localStorage.getItem('todos')) || [];
 let currentEditIndex = null;
 let currentDeleteIndex = null;
 
-function addTodo() {
-    const todoInput = document.getElementById('newTodo');
-    const errorMessage = document.getElementById('error-message');
-    const text = todoInput.value.trim();
-
-    if (text.length === 0) {
-        errorMessage.textContent = '⛔ Task cannot be empty';
-        return;
-    } else if (text.length < 5) {
-        errorMessage.textContent = '⛔ Task must be at least 5 characters long';
-        return;
-    } else if (/^\d/.test(text)) {
-        errorMessage.textContent = '⛔ Task cannot start with a number';
-        return;
-    }
-    
-    errorMessage.textContent = '';
-    todos.push({ text, done: false });
-    saveTodos();
-    todoInput.value = '';
-    renderTodos();
-
-    showMessage('Task added successfully 🎉');
-}
-
-
-function renderTodos(filter = 'all') {
+function render(task = 'all') {
     const todoList = document.getElementById('todoList');
     todoList.innerHTML = '';
-
-    const filteredTodos = todos.filter(todo => 
-        filter === 'all' || 
-        (filter === 'done' && todo.done) || 
-        (filter === 'todo' && !todo.done)
-    );
-
-    if (filteredTodos.length === 0) {
-        todoList.innerHTML = 'No Tasks 📝';
-        return; 
-    }
-
-    filteredTodos.forEach((todo, index) => {
+    let checktodos = [];
+if (task === 'all') {
+    checktodos = todos;
+} else if (task === 'done') {
+    checktodos = todos.filter(todo => todo.done);
+} else if (task === 'todo') {
+    checktodos = todos.filter(todo => !todo.done);
+}
+if (checktodos.length === 0) {
+    todoList.innerHTML = 'No Tasks 📝';
+    return;
+}
+    checktodos.forEach((todo, index) => {
         const li = document.createElement('li');
         li.className = `todo-item ${todo.done ? 'done' : ''}`;
-
         li.innerHTML = `
             <span>${todo.text}</span>
             <div class="todo-actions">
-                <button class="toggle" onclick="toggleDone(${index})">${todo.done ? '<i class="fa-regular fa-square-check"></i>' : '<i class="fa-regular fa-square"></i>'}</button>
-                <button class="edit" onclick="openEditModal(${index})"><i class="fa-solid fa-pen"></i></button>
+                <button class="toggle" onclick="toggle(${index})">${todo.done ? '<i class="fa-regular fa-square-check"></i>' : '<i class="fa-regular fa-square"></i>'}</button>
+                <button class="edit" onclick="openedit(${index})"><i class="fa-solid fa-pen"></i></button>
                 <button class="delete" onclick="deleteTodo(${index})"><i class="fa-solid fa-trash"></i></button>
             </div>
         `;
-
         todoList.appendChild(li);
     });
 }
-
-
-function showMessage(message) {
+function msgshow(message) {
     const container = document.querySelector('.container');
 
     const existingMessageBox = container.querySelector('.message-box');
@@ -69,7 +39,6 @@ function showMessage(message) {
         
         container.removeChild(existingMessageBox);
     }
-
     const messageBox = document.createElement('div');
     messageBox.className = 'message-box';
 
@@ -78,29 +47,49 @@ function showMessage(message) {
         'Task has been deleted.',
         'Task has been edited.'
     ];
-    
     if (successMessages.includes(message)) {
         messageBox.style.backgroundColor = '#d4edda';
         messageBox.style.color = '#155724';
         messageBox.style.border = '1px solid #c3e6cb';
     }
-    
-
     messageBox.textContent = message;
     container.appendChild(messageBox);
-
     setTimeout(() => {
         container.removeChild(messageBox);
     }, 3000);
 }
+function add() {
+    const todoInput = document.getElementById('newTodo');
+    const errorMessage = document.getElementById('error-message');
+    const taskText = todoInput.value.trim();
+    if (taskText === '') {
+        errorMessage.textContent = '⛔ Task cannot be empty';
+        return;
+    }
+    if (taskText.length < 5) {
+        errorMessage.textContent = '⛔ Task must be at least 5 characters long';
+        return;
+    }
 
+    if (taskText[0] >= '0' && taskText[0] <= '9') {
+        errorMessage.textContent = '⛔ Task cannot start with a number';
+        return;
+    }
+    if (!/^[a-zA-Z0-9\s.,'!?-]+$/.test(taskText)) {
+        errorMessage.textContent = '⛔ Task must contain only English characters';
+        return;}
+    errorMessage.textContent = '';
+    todos.push({ text: taskText, done: false });
+    saveTodos();
+    todoInput.value = '';
+    render();
+    msgshow('Task added successfully 🎉');
+}
 
-
-
-function toggleDone(index) {
+function toggle(index) {
     todos[index].done = !todos[index].done;
     saveTodos();
-    renderTodos();
+    render();
 }
 
 function deleteTodo(index) {
@@ -111,23 +100,23 @@ function deleteTodo(index) {
 function confirmDeleteTodo() {
     todos.splice(currentDeleteIndex, 1);
     closeDeleteModal();
-    showMessage("Task has been deleted.");
+    msgshow("Task has been deleted.");
 
     saveTodos();
-    renderTodos();
+    render();
 }
 
 function deleteDoneTodos() {
     todos = todos.filter(todo => !todo.done);
     saveTodos();
-    renderTodos();
+    render();
 }
 
 function deleteDoneTodos() {
     const doneTasks = todos.filter(todo => todo.done);
 
     if (doneTasks.length === 0) {
-        showMessage("No done tasks to delete.");
+        msgshow("No done tasks to delete.");
         return;
     }
     document.getElementById('deleteAllDoneModal').style.display = 'flex';
@@ -136,11 +125,11 @@ function deleteDoneTodos() {
 function deleteAllTodos() {
     todos = [];
     saveTodos();
-    renderTodos();
+    render();
 }
 function deleteAllTodos() {
     if (todos.length === 0) {
-        showMessage("No tasks to delete.");
+        msgshow("No tasks to delete.");
         return;
     }
     document.getElementById('deleteAllModal').style.display = 'flex';
@@ -149,9 +138,9 @@ function deleteAllTodos() {
 function confirmDeleteAll() {
     todos = [];
     closeDeleteAllModal();
-    showMessage("All Tasks has been deleted.");
+    msgshow("All Tasks has been deleted.");
     saveTodos();
-    renderTodos();
+    render();
 }
 
 function closeDeleteAllModal() {
@@ -162,9 +151,9 @@ function closeDeleteAllModal() {
 function confirmDeleteAllDone() {
     todos = todos.filter(todo => !todo.done);
     closeDeleteAllDoneModal();
-    showMessage("All done Tasks has been deleted.");
+    msgshow("All done Tasks has been deleted.");
     saveTodos();
-    renderTodos();
+    render();
 }
 
 function closeDeleteAllDoneModal() {
@@ -178,10 +167,10 @@ function filterTodos(filter) {
 
     document.querySelector(`.filter-buttons button[onclick="filterTodos('${filter}')"]`).classList.add('active');
 
-    renderTodos(filter);
+    render(filter);
 }
 
-function openEditModal(index) {
+function openedit(index) {
     currentEditIndex = index;
     const editTodoInput = document.getElementById('editTodoInput');
     const errorMessage = document.getElementById('edit-error-message');
@@ -206,10 +195,10 @@ function saveEditTodo() {
     }
 
     todos[currentEditIndex].text = newText;
-    showMessage("Task has been edited.");
+    msgshow("Task has been edited.");
     saveTodos();
     closeEditModal();
-    renderTodos();
+    render();
 }
 
 function closeDeleteModal() {
@@ -221,5 +210,5 @@ function saveTodos() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    renderTodos();
+    render();
 });
