@@ -33,12 +33,8 @@ if (checktodos.length === 0) {
 }
 function msgshow(message) {
     const container = document.querySelector('.container');
-
     const existingMessageBox = container.querySelector('.message-box');
-    if (existingMessageBox) {
-        
-        container.removeChild(existingMessageBox);
-    }
+    if (existingMessageBox) {container.removeChild(existingMessageBox);}
     const messageBox = document.createElement('div');
     messageBox.className = 'message-box';
 
@@ -54,9 +50,7 @@ function msgshow(message) {
     }
     messageBox.textContent = message;
     container.appendChild(messageBox);
-    setTimeout(() => {
-        container.removeChild(messageBox);
-    }, 3000);
+    setTimeout(() => { container.removeChild(messageBox);}, 3000);
 }
 function add() {
     const todoInput = document.getElementById('newTodo');
@@ -85,43 +79,35 @@ function add() {
     render();
     msgshow('Task added successfully 🎉');
 }
-
 function toggle(index) {
     todos[index].done = !todos[index].done;
     saveTodos();
     render();
 }
-
 function deleteTodo(index) {
     currentDeleteIndex = index;
     document.getElementById('deleteModal').style.display = 'flex';
 }
-
 function confirmDeleteTodo() {
     todos.splice(currentDeleteIndex, 1);
     closeDeleteModal();
     msgshow("Task has been deleted.");
-
     saveTodos();
     render();
 }
-
 function deleteDoneTodos() {
     todos = todos.filter(todo => !todo.done);
     saveTodos();
     render();
 }
-
 function deleteDoneTodos() {
     const doneTasks = todos.filter(todo => todo.done);
-
     if (doneTasks.length === 0) {
         msgshow("No done tasks to delete.");
         return;
     }
     document.getElementById('deleteAllDoneModal').style.display = 'flex';
 }
-
 function deleteAllTodos() {
     todos = [];
     saveTodos();
@@ -134,7 +120,6 @@ function deleteAllTodos() {
     }
     document.getElementById('deleteAllModal').style.display = 'flex';
 }
-
 function confirmDeleteAll() {
     todos = [];
     closeDeleteAllModal();
@@ -142,12 +127,9 @@ function confirmDeleteAll() {
     saveTodos();
     render();
 }
-
 function closeDeleteAllModal() {
     document.getElementById('deleteAllModal').style.display = 'none';
 }
-
-
 function confirmDeleteAllDone() {
     todos = todos.filter(todo => !todo.done);
     closeDeleteAllDoneModal();
@@ -155,60 +137,40 @@ function confirmDeleteAllDone() {
     saveTodos();
     render();
 }
-
 function closeDeleteAllDoneModal() {
     document.getElementById('deleteAllDoneModal').style.display = 'none';
 }
-
-
-function filterTodos(filter) {
+function filterTodos(task) {
     const buttons = document.querySelectorAll('.filter-buttons button');
     buttons.forEach(button => button.classList.remove('active'));
-
-    document.querySelector(`.filter-buttons button[onclick="filterTodos('${filter}')"]`).classList.add('active');
-
-    render(filter);
+    document.querySelector(`.filter-buttons button[onclick="filterTodos('${task}')"]`).classList.add('active');
+    render(task);
 }
-
 function openedit(index) {
     currentEditIndex = index;
     const editTodoInput = document.getElementById('editTodoInput');
     const errorMessage = document.getElementById('edit-error-message');
     errorMessage.textContent = '';
-
     editTodoInput.value = todos[index].text;
     document.getElementById('editModal').style.display = 'flex';
 }
-
 function closeEditModal() {
     document.getElementById('editModal').style.display = 'none';
 }
-
 function saveEditTodo() {
     const editTodoInput = document.getElementById('editTodoInput');
     const errorMessage = document.getElementById('edit-error-message');
     const newText = editTodoInput.value.trim();
-
     if (newText.length < 5) {
         errorMessage.textContent = '⛔ Task must be at least 5 characters long';
         return;
     }
-
     todos[currentEditIndex].text = newText;
     msgshow("Task has been edited.");
     saveTodos();
     closeEditModal();
     render();
 }
-
-function closeDeleteModal() {
-    document.getElementById('deleteModal').style.display = 'none';
-}
-
-function saveTodos() {
-    localStorage.setItem('todos', JSON.stringify(todos));
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    render();
-});
+function closeDeleteModal() {document.getElementById('deleteModal').style.display = 'none';}
+function saveTodos() {localStorage.setItem('todos', JSON.stringify(todos));}
+document.addEventListener('DOMContentLoaded', () => {render();});
